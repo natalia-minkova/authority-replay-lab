@@ -8,19 +8,28 @@ breaks enforcement to verify that the replay test notices.
 
 **Standalone educational implementation — not the Kimura engine, not the A02
 source release, and not a reproduction of its historical test counts.**
+**Synthetic, software-only. No physical robot or aircraft is operated or tested.**
 No AI provider, credentials, network, payment API, drone or robot is required.
 
-## Run in one minute
+## Run from a fresh clone (POSIX shell)
 
-Python 3.11+ with its standard-library SQLite module. No pip dependencies.
+Python 3.11+ with its standard-library SQLite and venv modules. No pip dependencies.
+There is no `pip install` step: this is a collection of scripts, not an installable
+Python package. Git/network access is needed for cloning; the scripts run locally.
 
 ```sh
 git clone https://github.com/natalia-minkova/authority-replay-lab.git
 cd authority-replay-lab
+python3 -m venv .venv
+. .venv/bin/activate
 python3 replay_lab.py
 python3 -m unittest -v
 python3 check_mutation.py
 ```
+
+If `python3 -m venv` reports that venv/ensurepip is unavailable, install your
+operating system's venv support for that Python version first. The commands above
+use a POSIX shell; Windows activation syntax is different.
 
 The demo creates a temporary local database and removes it on exit. Expected output:
 
@@ -52,7 +61,8 @@ This is one targeted mutation, not a general mutation score or proprietary fuzze
 | Same grant reused | Denied; effect count remains one |
 | Database reopened | Consumed state remains enforced |
 | Eight concurrent attempts | One allowed; seven rejected; one effect |
-| Different actor, target or amount | Rejected without consuming the valid grant |
+| Different actor, target or amount | Rejected; no simulated effect |
+| Wrong actor followed by valid request | Valid grant remains usable |
 | Duplicate issuance | Cannot reset a consumed grant |
 | Effect insertion fails | Transaction rolls back consumption and effect |
 | Replay guard deliberately removed | Replay assertion fails |
@@ -74,6 +84,15 @@ not just the gate's return string.
   is implemented here. Grant IDs are fixture identifiers, not secret credentials.
 - No real money moves. No robot moves. This lab is not a production authorization
   component, a customer assessment or a guarantee for untested inputs.
+
+### Evidence integrity
+
+This lab produces local, unsigned output. It does **not** implement a tamper-evident
+or authenticated evidence capsule. A checksum alongside a file is not proof of its
+authenticity. Any separate signed capsule must have its verification key bound to
+the claimed signer through a trusted channel before it can be treated as
+authenticated evidence. Even an authenticated signature does not prove a claimed
+physical event occurred.
 
 ## Related work
 
