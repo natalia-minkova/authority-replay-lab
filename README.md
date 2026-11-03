@@ -53,6 +53,15 @@ It first checks the unmodified baseline, then removes exactly one guard in a
 temporary copy. An import error or crash does not count as a detected mutation.
 This is one targeted mutation, not a general mutation score or proprietary fuzzer.
 
+## Recorded reproduction
+
+[Unsigned clean-run record](evidence/clean-run-2026-11-03.md): exact tested commit,
+Python/SQLite versions, commands, observed output summary and limitations.
+[GitHub Actions](https://github.com/natalia-minkova/authority-replay-lab/actions)
+runs the README commands in fresh venvs on Python 3.11 and 3.12 on Ubuntu.
+Check the individual run for its status; configured checks alone are not proof
+that a run passed.
+
 ## What a reviewer can inspect
 
 | Scenario | Required outcome |
