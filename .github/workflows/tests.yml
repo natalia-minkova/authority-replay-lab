@@ -4,17 +4,29 @@ permissions:
   contents: read
 jobs:
   synthetic-tests:
+    name: Clean venv / Python ${{ matrix.python }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
-      - name: Record runtime
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Run README commands in a fresh venv
+        shell: bash
         run: |
+          set -euo pipefail
+          python3 -m venv .venv
+          . .venv/bin/activate
           git rev-parse HEAD
           python3 --version
-          python3 -c "import sqlite3; print('SQLite', sqlite3.sqlite_version)"
-      - name: Run assertions
-        run: python3 -m unittest -v
-      - name: Run synthetic demo
-        run: python3 replay_lab.py
-      - name: Check deliberate mutation
-        run: python3 check_mutation.py
+          python3 -c "import sys, sqlite3; assert sys.prefix != sys.base_prefix; print('SQLite', sqlite3.sqlite_version)"
+          python3 -m pip list
+          python3 replay_lab.py
+          python3 -m unittest -v
+          python3 check_mutation.py
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
